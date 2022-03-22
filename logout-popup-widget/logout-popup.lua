@@ -8,27 +8,32 @@
 -------------------------------------------------
 
 local awful = require("awful")
-local capi = {keygrabber = keygrabber }
+local capi = { keygrabber = keygrabber }
 local wibox = require("wibox")
 local gears = require("gears")
 local beautiful = require("beautiful")
 local awesomebuttons = require("awesome-buttons.awesome-buttons")
 
-
 local HOME_DIR = os.getenv("HOME")
 local WIDGET_DIR = HOME_DIR .. '/.config/awesome/awesome-wm-widgets/logout-popup-widget'
 
-
-local w = wibox {
-    bg = beautiful.fg_normal,
-    max_widget_size = 500,
-    ontop = true,
-    height = 200,
-    width = 400,
-    shape = function(cr, width, height)
-        gears.shape.rounded_rect(cr, width, height, 8)
+local function get_widget(args)
+    if w then
+        return w
     end
-}
+
+    w = wibox {
+        bg = beautiful.fg_normal,
+        max_widget_size = 500,
+        ontop = true,
+        height = args.height or 200,
+        width = args.width or 400,
+        shape = function(cr, width, height)
+            gears.shape.rounded_rect(cr, width, height, 8)
+        end,
+    }
+    return w
+end
 
 local action = wibox.widget {
     text = ' ',
@@ -39,6 +44,8 @@ local phrase_widget = wibox.widget{
     align  = 'center',
     widget = wibox.widget.textbox
 }
+
+local w = nil
 
 local function create_button(icon_name, action_name, accent_color, label_color, onclick, icon_size, icon_margin)
 
@@ -65,6 +72,7 @@ end
 
 local function launch(args)
     args = args or {}
+    local w = get_widget(args)
 
     local bg_color = args.bg_color or beautiful.bg_normal
     local accent_color = args.accent_color or beautiful.bg_focus
@@ -73,6 +81,9 @@ local function launch(args)
     local phrases = args.phrases or {'Goodbye!'}
     local icon_size = args.icon_size or 40
     local icon_margin = args.icon_margin or 16
+    local width = args.width or 400
+    local height = args.height or 200
+    local hide_phrase = args.hide_phrase or false
 
     local onlogout = args.onlogout or function () awesome.quit() end
     local onlock = args.onlock or function() awful.spawn.with_shell("i3lock") end
@@ -81,14 +92,21 @@ local function launch(args)
     local onpoweroff = args.onpoweroff or function() awful.spawn.with_shell("shutdown now") end
 
     w:set_bg(bg_color)
+    w.width = width
     if #phrases > 0 then
         phrase_widget:set_markup(
             '<span color="'.. text_color .. '" size="20000">' .. phrases[ math.random( #phrases ) ] .. '</span>')
     end
 
+    local function close()
+        phrase_widget:set_text('')
+        capi.keygrabber.stop()
+        w.visible = false
+    end
+
     w:setup {
         {
-            phrase_widget,
+            not hide_phrase and phrase_widget or nil,
             {
                 {
                     create_button('log-out', 'Log Out (l)',
@@ -130,9 +148,7 @@ local function launch(args)
         if event == "release" then return end
         if key then
             if key == 'Escape' then
-                phrase_widget:set_text('')
-                capi.keygrabber.stop()
-                w.visible = false
+                close()
             elseif key == 's' then onpoweroff()
             elseif key == 'r' then onreboot()
             elseif key == 'u' then onsuspend()
@@ -167,7 +183,7 @@ local function widget(args)
     res:buttons(
         awful.util.table.join(
             awful.button({}, 1, function()
-                if w.visible then
+                if w and w.visible then
                     phrase_widget:set_text('')
                     capi.keygrabber.stop()
                     w.visible = false

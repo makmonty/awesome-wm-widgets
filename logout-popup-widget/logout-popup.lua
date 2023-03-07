@@ -128,7 +128,7 @@ local function launch(args)
             },
             {
                 action,
-                haligh = 'center',
+                halign = 'center',
                 layout = wibox.container.place
             },
             spacing = 32,

@@ -185,16 +185,25 @@ local function worker(user_args)
         widget:set_volume_level(volume_level)
     end
 
-    function volume:inc(s)
-        spawn.easy_async(INC_VOLUME_CMD(device, s or step), function(stdout) update_graphic(volume.widget, stdout) end)
+    function volume:inc(s, callback)
+        spawn.easy_async(INC_VOLUME_CMD(device, s or step), function(stdout)
+            update_graphic(volume.widget, stdout)
+            callback(stdout)
+        end)
     end
 
-    function volume:dec(s)
-        spawn.easy_async(DEC_VOLUME_CMD(device, s or step), function(stdout) update_graphic(volume.widget, stdout) end)
+    function volume:dec(s, callback)
+        spawn.easy_async(DEC_VOLUME_CMD(device, s or step), function(stdout)
+            update_graphic(volume.widget, stdout)
+            callback(stdout)
+        end)
     end
 
-    function volume:toggle()
-        spawn.easy_async(TOG_VOLUME_CMD(device), function(stdout) update_graphic(volume.widget, stdout) end)
+    function volume:toggle(callback)
+        spawn.easy_async(TOG_VOLUME_CMD(device), function(stdout)
+            update_graphic(volume.widget, stdout)
+            callback(stdout)
+        end)
     end
 
     function volume:mixer()

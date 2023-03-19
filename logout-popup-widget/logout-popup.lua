@@ -17,6 +17,8 @@ local awesomebuttons = require("awesome-buttons.awesome-buttons")
 local HOME_DIR = os.getenv("HOME")
 local WIDGET_DIR = HOME_DIR .. '/.config/awesome/awesome-wm-widgets/logout-popup-widget'
 
+local w = nil
+
 local function get_widget(args)
     if w then
         return w
@@ -44,8 +46,6 @@ local phrase_widget = wibox.widget{
     align  = 'center',
     widget = wibox.widget.textbox
 }
-
-local w = nil
 
 local function create_button(icon_name, action_name, accent_color, label_color, onclick, icon_size, icon_margin)
 

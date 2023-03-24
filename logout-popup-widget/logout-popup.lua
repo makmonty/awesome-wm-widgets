@@ -81,6 +81,7 @@ local function launch(args)
     local phrases = args.phrases or {'Goodbye!'}
     local icon_size = args.icon_size or 40
     local icon_margin = args.icon_margin or 16
+    local icon_spacing = args.icon_spacing or 8
     local width = args.width or 400
     local height = args.height or 200
     local hide_phrase = args.hide_phrase or false
@@ -120,7 +121,7 @@ local function launch(args)
                     create_button('power', 'Power Off (s)',
                         accent_color, label_color, onpoweroff, icon_size, icon_margin),
                     id = 'buttons',
-                    spacing = 8,
+                    spacing = icon_spacing,
                     layout = wibox.layout.fixed.horizontal
                 },
                 valign = 'center',
